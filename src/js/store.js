@@ -1,35 +1,98 @@
 
 import { createStore } from 'framework7/lite';
+import masterServices from './services'
 
 const store = createStore({
   state: {
-    products: [
-      {
-        id: '1',
-        title: 'Apple iPhone 8',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nisi tempora similique reiciendis, error nesciunt vero, blanditiis pariatur dolor, minima sed sapiente rerum, dolorem corrupti hic modi praesentium unde saepe perspiciatis.'
-      },
-      {
-        id: '2',
-        title: 'Apple iPhone 8 Plus',
-        description: 'Velit odit autem modi saepe ratione totam minus, aperiam, labore quia provident temporibus quasi est ut aliquid blanditiis beatae suscipit odio vel! Nostrum porro sunt sint eveniet maiores, dolorem itaque!'
-      },
-      {
-        id: '3',
-        title: 'Apple iPhone X',
-        description: 'Expedita sequi perferendis quod illum pariatur aliquam, alias laboriosam! Vero blanditiis placeat, mollitia necessitatibus reprehenderit. Labore dolores amet quos, accusamus earum asperiores officiis assumenda optio architecto quia neque, quae eum.'
-      },
-    ]
+    categories: {
+      data : '',
+      error: false
+    },
+    products: {
+      data : '',
+      error: false
+    },
+    wishlist: {
+      data : [],
+    },
+    cart: {
+      data : [],
+    },
   },
   getters: {
+    categories({ state }) {
+      return state.categories;
+    },
     products({ state }) {
       return state.products;
+    },
+    wishlists({ state }) {
+      return state.wishlists;
+    },
+    carts({ state }) {
+      return state.carts;
     }
   },
   actions: {
-    addProduct({ state }, product) {
-      state.products = [...state.products, product];
+    addCategories({ state }) {
+      masterServices.getData().then(function (response) {
+      console.log(response.data[0].data.category)
+      state.categories = {
+          ...state.categories, 
+          data : response.data[0].data.category
+        }
+      })
+      .catch(function (error) {
+        state.categories = {
+          ...state.categories, 
+          error : true
+        }
+      })
     },
+    addProduct({ state }) {
+      masterServices.getData().then(function (response) {
+        state.products = {
+          ...state.products, 
+          data : response.data[0].data.productPromo
+        }
+      })
+      .catch(function (error) {
+        state.products = {
+          ...state.products, 
+          error : true
+        }
+      })
+    },
+    updateWishList({state}, data){
+      if(data.act === 'ADD') {
+        return state.wishlist = [...state.wishlist, data.wishlist]
+      }
+      if(data.act === 'REMOVE'){
+        if (data.indexMy > -1) {
+            state.wishlist.splice(action.indexMy, 1)
+            return {
+                ...state
+            };
+        }
+      }
+
+      return state;
+    },
+    updateCart({state}, data){
+      if(data.act === 'ADD') {
+        return state.cart = [...state.cart, data.cart]
+      }
+      if(data.act === 'REMOVE'){
+        if (data.indexMy > -1) {
+            state.cart.splice(action.indexMy, 1)
+            return {
+                ...state
+            };
+        }
+      }
+
+      return state;
+    }
   },
 })
 export default store;
